@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<title>3DS 이미지 업로드</title>
+<style>
+  body { font-family: sans-serif; background: #eef0f2; padding: 20px; }
+  .container { max-width: 400px; margin: auto; background: white; padding: 20px; border-radius: 8px; }
+  input[type=file] { display: block; margin-bottom: 10px; }
+  button { padding: 8px 16px; }
+  #codeResult { margin-top: 15px; font-weight: bold; font-size: 1.2em; }
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1>3DS 이미지 업로드</h1>
+    <input type="file" id="imageInput" accept="image/*" />
+    <button id="uploadBtn">업로드</button>
+
+    <div id="codeResult"></div>
+
+    <hr />
+    <h2>코드로 이미지 보기</h2>
+    <input type="text" id="codeInput" maxlength="4" placeholder="4자리 코드 입력" />
+    <button id="viewBtn">이미지 보기</button>
+  </div>
+
+<script>
+  const uploadBtn = document.getElementById('uploadBtn');
+  const imageInput = document.getElementById('imageInput');
+  const codeResult = document.getElementById('codeResult');
+  const codeInput = document.getElementById('codeInput');
+  const viewBtn = document.getElementById('viewBtn');
+
+  uploadBtn.onclick = () => {
+    if (!imageInput.files.length) {
+      alert('이미지를 선택해주세요.');
+      return;
+    }
+    const file = imageInput.files[0];
+    const formData = new FormData();
+    formData.append('image', file);
+
+    fetch('/upload', {
+      method: 'POST',
+      body: formData
+    }).then(res => res.json())
+      .then(data => {
+        codeResult.textContent = `업로드 완료! 4자리 코드: ${data.code}`;
+      }).catch(() => {
+        alert('업로드 실패!');
+      });
+  };
+
+  viewBtn.onclick = () => {
+    const code = codeInput.value.toUpperCase();
+    if (code.length !== 4) {
+      alert('4자리 코드를 입력해주세요.');
+      return;
+    }
+    // 이미지 보여줄 새 탭 열기 (또는 뷰어 페이지로 이동)
+    window.open(`/image-viewer.html?code=${code}`, '_blank');
+  };
+</script>
+</body>
+</html>
